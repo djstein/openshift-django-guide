@@ -23,7 +23,8 @@ Disclaimer this guide assumes you have an OpenShift account and have the OpenShi
 5. [Database Settings](#Database_Settings)
 6. [Configure wsgi.py](#Configure_wsgi_py)
 7. [Configure Static Files](#Configure_Static_Files)
-8. [Pushing Code](#Pushing_Code)
+8. [Allowed Hosts](#Allowed_Hosts)
+9. [Pushing Code](#Pushing_Code)
 
 ## 1. Create New OpenShift Application<a name="Create_New_OpenShift_Application"></a>
 In the terminal:
@@ -157,7 +158,17 @@ STATICFILES_DIRS = [
 ]
 ```
 
-## 8. Pushing Code<a name="Pushing_Code"></a>
+## 8. Allowed Hosts<a name="Allowed_Hosts"></a>
+To connect to the application add the allowed hosts for this application, for OpenShift test deployment, add the following
+```bash
+# \<project_name>/settings.py
+ALLOWED_HOSTS = [
+    ...
+    'ostest1-boostdev.rhcloud.com'
+]
+```
+
+## 9. Pushing Code<a name="Pushing_Code"></a>
 Deploy the codebase to the OpenShift repository by checking the files to be added, ensuring they are correct here we use 'git .', adding a commit message, then pushing.
 ```bash
 git status
