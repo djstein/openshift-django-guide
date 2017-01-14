@@ -21,6 +21,9 @@ Disclaimer this guide assumes you have an OpenShift account and have the OpenShi
 3. [Add Exisiting Django Project PostrgresSQL DB](#Add_Exisiting_Django_Project)
 4. [Connect PostrgresSQL DB](#Connect_PostrgresSQL_DB)
 5. [Database Settings](#Database_Settings)
+6. [Configure wsgi.py](#Configure_wsgi_py)
+7. [Configure Static Files](#Configure_Static_Files)
+8. [Pushing Code](#Pushing_Code)
 
 ## 1. Create New OpenShift Application<a name="Create_New_OpenShift_Application"></a>
 In the terminal:
@@ -59,9 +62,9 @@ Now add your Django project to the \<app-name> directory. Assuming standard Djan
   .openshift/
   LICENSE
   README.md
-  appname/
+  <app>/
   manage.py
-  project/
+  <project_name>/
   requirements.txt
   setup.py
   wsgi.py
@@ -69,7 +72,7 @@ Now add your Django project to the \<app-name> directory. Assuming standard Djan
 More files may be required, and for this example the directory 'static' at repo level be used to server static files.
 
 ## 4. Database Settings<a name="Database_Settings"></a>
-In the project/settings.py change the database connection settings to use OpenShift environment variables.
+In the\`<project_name>/settings.py change the database connection settings to use OpenShift environment variables.
 ```python
 
 ...
@@ -90,3 +93,75 @@ DATABASES = {'default': {
 }
 ```
 
+## 5. Configure wsgi.py<a name="Configure_wsgi_py"></a>
+Replace the exisiting contents of the wsgi.py with the following:
+```python
+#!/usr/bin/python
+import os, sys
+
+sys.path.append(os.path.join(os.environ['OPENSHIFT_REPO_DIR']))
+
+os.environ['DJANGO_SETTINGS_MODULE'] = '<project_name>.settings'
+
+virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
+
+os.environ['PYTHON_EGG_CACHE'] = os.path.join(virtenv, 'lib/python2.7/site-packages')
+
+virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
+# This activation of the virtualenv is different for Python 2 and 3, the v2 is shown below
+try:
+    execfile(virtualenv, dict(__file__=virtualenv))
+except IOError:
+    pass
+
+#
+# IMPORTANT: Put any additional includes below this line.  If placed above this
+# line, it's possible required libraries won't be in your searchable path
+#
+from <project_name>.wsgi import application
+```
+
+## 6. Create Action Hook: deploy
+Create an OpenShift action hook that will run a set of commands during deployment.
+Create this file in the folder, then add permissions to execute.
+```bash
+touch .openshift/action_hooks/deploy
+chmod +x .openshift/action_hooks/deploy 
+```
+Edit the deploy script to include:
+```bash
+cd $OPENSHIFT_REPO_DIR
+echo "Executing 'python manage.py migrate'"
+python manage.py migrate
+echo "Executing 'python manage.py collectstatic --noinput'"
+python manage.py collectstatic --noinput
+```
+
+## 7. Configure Static Files<a name="Configure_Static_Files"></a>
+For this example we will assume the static files are application specific. Thus \<app> has its own static directory.
+Ensure that \<app> is included in the <project>/settings.py INSTALLED_APPS. Then add STATIC_ROOT and STATICFILES_DIRS.
+```python
+INSTALLED_APPS = (
+    ...
+    'appname',
+)
+
+...
+
+STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'appname/static/'),
+]
+```
+
+## 8. Pushing Code<a name="Pushing_Code"></a>
+Deploy the codebase to the OpenShift repository by checking the files to be added, ensuring they are correct here we use 'git .', adding a commit message, then pushing.
+```bash
+git status
+git add .
+git commit -am "Initial commit"
+git push
+```
