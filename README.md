@@ -75,6 +75,7 @@ More files may be required, and for this example the directory 'static' at repo 
 ## 4. Database Settings<a name="Database_Settings"></a>
 In the\`<project_name>/settings.py change the database connection settings to use OpenShift environment variables.
 ```python
+# <project_name>/settings.py
 
 ...
 import urlparse
@@ -97,6 +98,7 @@ DATABASES = {'default': {
 ## 5. Configure wsgi.py<a name="Configure_wsgi_py"></a>
 Replace the exisiting contents of the wsgi.py with the following:
 ```python
+# wsgi.py (root directory)
 #!/usr/bin/python
 import os, sys
 
@@ -131,6 +133,7 @@ chmod +x .openshift/action_hooks/deploy
 ```
 Edit the deploy script to include:
 ```bash
+# .openshift/action_hooks/deploy
 cd $OPENSHIFT_REPO_DIR
 echo "Executing 'python manage.py migrate'"
 python manage.py migrate
@@ -142,6 +145,7 @@ python manage.py collectstatic --noinput
 For this example we will assume the static files are application specific. Thus \<app> has its own static directory.
 Ensure that \<app> is included in the <project>/settings.py INSTALLED_APPS. Then add STATIC_ROOT and STATICFILES_DIRS.
 ```python
+# <project_name>/settings.py
 INSTALLED_APPS = (
     ...
     'appname',
@@ -161,7 +165,7 @@ STATICFILES_DIRS = [
 ## 8. Allowed Hosts<a name="Allowed_Hosts"></a>
 To connect to the application add the allowed hosts for this application, for OpenShift test deployment, add the following
 ```bash
-# \<project_name>/settings.py
+# <project_name>/settings.py
 ALLOWED_HOSTS = [
     ...
     '<app_name>-<domain>.rhcloud.com'
