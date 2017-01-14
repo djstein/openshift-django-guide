@@ -5,6 +5,7 @@ Using Django 1.10 and Python 2.7
 # Contents
 1. [Introduction](#Introduction)
 2. [Instructions](#Instructions)
+3. [Addition of Vue.js Project](#Addition_of_Vue_js_Project)
 
 # Introduction<a name="Introduction"></a>
 
@@ -180,3 +181,6 @@ git add .
 git commit -am "Initial commit"
 git push
 ```
+
+# Addition of Vue.js Project<a name="Addition_of_Vue_js_Project"></a>
+To Be Added
