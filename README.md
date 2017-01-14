@@ -164,7 +164,7 @@ To connect to the application add the allowed hosts for this application, for Op
 # \<project_name>/settings.py
 ALLOWED_HOSTS = [
     ...
-    'ostest1-boostdev.rhcloud.com'
+    '<app_name>-<domain>.rhcloud.com'
 ]
 ```
 
