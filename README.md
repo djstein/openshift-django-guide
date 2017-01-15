@@ -1,5 +1,7 @@
 # RedHat OpenShift Django Deployment Guide
 
+**WARNING: CURRENTLY THIS IS NOT PRODUCTION READY !!!UPDATES COMING!!! **
+
 Using Django 1.10 and Python 2.7
 
 # Contents
