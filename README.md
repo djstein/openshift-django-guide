@@ -183,4 +183,66 @@ git push
 ```
 
 # Addition of Vue.js Project<a name="Addition_of_Vue_js_Project"></a>
-To Be Added
+
+This assumes usage of the Vue.js Application template found here:
+
+1. [Django Webpack Loader](#Django_Webpack_Loader)
+2. [Webpack Config Changes](#Webpack_Config_Changes)
+
+##1. Django Webpack Loader<a name="Django_Webpack_Loader"></a>
+In requirements.txt make the addition of the package to install:
+```python
+Django
+django-webpack-loader
+```
+
+Then in \<project_name>/settings.py make additions of loading the module, ensuring the \<vue_app>'s static files are found by collectstatic, and add the settings for Webpack Loader.
+```python
+# <project_name>/settings.py
+
+INSTALLEED_APPS = [
+  'webpack_loader',
+]
+
+...
+
+STATICFILES_DIRS = [
+    ...
+    os.path.join(BASE_DIR, '<vue_app>/static/'),
+]
+
+...
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'static/',
+        'STATS_FILE': os.path.join(BASE_DIR, '<vue_app>', 'webpack-stats.json')
+    }
+}
+```
+
+## 2. Webpack Config Changes<a name="Webpack_Config_Changes"></a>
+```javascript
+  entry: [
+      'webpack-dev-server/client?http://<app_name>-<domain>.rhcloud.com',
+      'webpack/hot/only-dev-server',
+      '../src/main'
+  ],
+  output: {
+      path: path.resolve('./static/'),
+      filename: "[name]-[hash].js",
+      publicPath: 'http://<app_name>-<domain>.rhcloud.com/static/', // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
+  },
+```
+
+## 3. Webpack Building<a name="Webpack_Building"></a>
+In the \<vue_app> directory, run the script
+```bash
+npm run build
+```
+This will automatically bundle the CSS, JavaScript, and other static files of the Vue.js application and place them in appropriate folders that collectstatic will look in.
+
+Unforunately this script cannot be run and bundles on the OpenShift server due to permissions and ability to install other applications not associated with the cartridge.
+
+## 4. Deploy
+Once the build has completed, add the new build found in \<vue_app>/static/ to a git commit and push the new changes.
